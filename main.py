@@ -166,7 +166,7 @@ def main(args):
             val_hnorm = torch.norm(all_feats, p=2, dim=1).mean().item()
             del all_feats, preds, labels
 
-            # ================ NC2 ================
+            # ================ NC3 ================
             WWT_normalized = WWT / np.linalg.norm(WWT)
             min_eigval = theory_stat['min_eigval']
             Sigma_sqrt = theory_stat['Sigma_sqrt']
@@ -188,39 +188,44 @@ def main(args):
                 step=epoch
             )
             best_c = c_to_plot[np.argmin(NC2_to_plot)]
-            NC2 = min(NC2_to_plot)
+            NC3 = min(NC2_to_plot)
 
             # ================ log to wandb ================
             nc_dt = {
                 'train/train_nc1': nc_train['nc1'],
-                'train/train_nc3': nc_train['nc3'],
-                'train/train_nc3a': nc_train['nc3a'],
+                'train/train_nc1n': nc_train['nc1_n'],
+                'train/train_nc2': nc_train['nc2'],
+                'train/train_nc2n': nc_train['nc2_n'],
                 'train/train_loss': train_loss,
                 'train/train_mse': train_mse,
 
                 'val/val_loss': val_loss,
                 'val/val_mse': val_mse,
                 'val/val_nc1': nc_val['nc1'],
-                'val/val_nc3': nc_val['nc3'],
-                'val/val_nc3a': nc_val['nc3a'],
+                'val/val_nc1n': nc_val['nc1_n'],
+                'val/val_nc2': nc_val['nc2'],
+                'val/val_nc2n': nc_val['nc2_n'],
 
-                'ww00': WWT[0, 0].item(),
-                'ww01': WWT[0, 1].item() if args.num_y == 2 else 0,
-                'ww11': WWT[1, 1].item() if args.num_y == 2 else 0,
-                'w_cos': F.cosine_similarity(W[0], W[1], dim=0).item() if args.num_y == 2 else 0,
-                'W/nc2': NC2,
-                'W/best_c': best_c,
+                'NC3/nc3': NC3,
+                'NC3/best_c': best_c,
+                'NC3/ww_d': np.sum((WWT / np.linalg.norm(WWT) - W_outer / np.linalg.norm(W_outer)) ** 2),
+                'NC3/ww_d1': np.sum(((WWT - W_outer) / np.linalg.norm(W_outer)) ** 2),
+                'NC3/ww00_d': abs(WWT[0, 0].item() - W_outer[0, 0]) / (abs(W_outer[0, 0]) + 1e-8),
+                'NC3/ww11_d': abs(WWT[1, 1].item() - W_outer[1, 1]) / (abs(W_outer[1, 1]) + 1e-8) if args.num_y == 2 else 0,
+                # 'NC2/ww01_d': abs(WWT[0, 1].item() - W_outer[0, 1]) / (abs(W_outer[0, 1]) + 1e-8) if args.num_y == 2 else 0,
 
-                'NC2/ww00_d': abs(WWT[0, 0].item() - W_outer[0, 0]) / (abs(W_outer[0, 0]) + 1e-8),
-                'NC2/ww01_d': abs(WWT[0, 1].item() - W_outer[0, 1]) / (abs(W_outer[0, 1]) + 1e-8) if args.num_y == 2 else 0,
-                'NC2/ww11_d': abs(WWT[1, 1].item() - W_outer[1, 1]) / (abs(W_outer[1, 1]) + 1e-8) if args.num_y == 2 else 0,
-                'NC2/ww_d': np.sum((WWT / np.linalg.norm(WWT) - W_outer / np.linalg.norm(W_outer)) ** 2),
-                'NC2/ww_d1': np.sum(((WWT - W_outer) / np.linalg.norm(W_outer)) ** 2),
+                'W/ww00': WWT[0, 0].item(),
+                'W/ww01': WWT[0, 1].item() if args.num_y == 2 else 0,
+                'W/ww11': WWT[1, 1].item() if args.num_y == 2 else 0,
+                'W/w_cos': F.cosine_similarity(W[0], W[1], dim=0).item() if args.num_y == 2 else 0,
 
                 'other/lr': optimizer.param_groups[0]['lr'],
                 'other/train_hnorm': train_hnorm,
                 'other/val_hnorm': val_hnorm,
-                'other/wnorm': train_wnorm
+                'other/wnorm': train_wnorm,
+                'other/train_nc2a': nc_train['nc2a'],
+                'other/val_nc2a': nc_val['nc2a'],
+
             }
             wandb.log(nc_dt, step=epoch)
 

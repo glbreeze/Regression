@@ -98,27 +98,27 @@ def compute_metrics(W, H, y_dim=None):
     # NRC1 with Gram-Schmidt
     H_pca = torch.tensor(H_pca, device=H.device)
     H_U = gram_schmidt(H_pca)
-    H_P = torch.mm(H_U.T, H_U)
-    H_proj_PCA = torch.mm(H, H_P)
-    result['nc1'] = torch.sum((H_proj_PCA - H)**2).item() / len(H)
-    del H_np, H_pca, pca_for_H
+    P_H = torch.mm(H_U.T, H_U)   # Projection matrix
+    result['nc1'] = torch.sum((H @ P_H - H)**2).item() / len(H)
 
-    try:
-        inverse_mat = torch.inverse(W @ W.T)
-    except Exception as e:
-        print(e)
-        result['nc3'] = -1
-    else:
-        H_proj_W = (W.T @ inverse_mat @ W @ H.T).T
-        result['nc3'] = torch.sum((H-H_proj_W)**2).item() / len(H)
-        del H_proj_W
+    H_row_norms = np.linalg.norm(H, axis=1, keepdims=True)
+    H_normalized = H / H_row_norms
+    result['nc1_n'] = torch.mean( torch.norm( H_normalized @ P_H - H_normalized, p=2, dim=1) ** 2 ).item()
+    del H_np, H_pca, pca_for_H
 
     # Projection error with Gram-Schmidt
     U = gram_schmidt(W)
-    P_E = torch.mm(U.T, U)
-    H_proj = torch.mm(H, P_E)
-    result['nc3a'] = torch.sum((H_proj-H)**2).item() / len(H)
-    del H_proj
+    P_W = torch.mm(U.T, U)
+    result['nc2'] = torch.sum((H @ P_W - H) ** 2).item() / len(H)
+    result['nc2_n'] = torch.mean(
+        torch.norm(H_normalized @ P_W - H_normalized, p=2, dim=1) ** 2
+    ).item()
+
+    inverse_mat = torch.inverse(W @ W.T)
+    H_proj_W = (W.T @ inverse_mat @ W @ H.T).T
+    result['nc2a'] = torch.sum((H - H_proj_W) ** 2).item() / len(H)
+
+    del H, H_normalized, P_H, P_W
 
     return result
 

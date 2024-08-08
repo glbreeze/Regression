@@ -10,7 +10,11 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fb37ffa-991c-4d5c-94e7-cd81883e0c34" name="Default Changelist" comment="" />
+    <list default="true" id="2fb37ffa-991c-4d5c-94e7-cd81883e0c34" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_utils.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,10 +63,10 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="546" y="295" width="700" height="530" key="recent.locations.popup" timestamp="1721641547099">
+    <state x="546" y="295" width="700" height="530" key="recent.locations.popup" timestamp="1723127529838">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state x="546" y="295" width="700" height="530" key="recent.locations.popup/0.0.1792.1120@0.0.1792.1120" timestamp="1721641547099" />
+    <state x="546" y="295" width="700" height="530" key="recent.locations.popup/0.0.1792.1120@0.0.1792.1120" timestamp="1723127529838" />
     <state x="561" y="251" width="670" height="676" key="search.everywhere.popup" timestamp="1716088966173">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
