@@ -87,30 +87,40 @@ def compute_metrics(W, H, y_dim=None):
 
     # NC1
     H_np = H.cpu().numpy()
-    pca_for_H = PCA(n_components=y_dim)
+    pca_for_H = PCA(n_components=max(y_dim, 5))
     try:
         pca_for_H.fit(H_np)
     except Exception as e:
         print(e)
         result['nc1'] = -1
-    H_pca = pca_for_H.components_[:y_dim, :]  # First two principal components [2,5]
-
-    # NRC1 with Gram-Schmidt
-    H_pca = torch.tensor(H_pca, device=H.device)
+        
+    H_pca = torch.tensor(pca_for_H.components_[:max(y_dim, 5), :], device=H.device)
     H_U = gram_schmidt(H_pca)
-    P_H = torch.mm(H_U.T, H_U)   # Projection matrix
-    result['nc1'] = torch.sum((H @ P_H - H)**2).item() / len(H)
-
-    H_row_norms = np.linalg.norm(H, axis=1, keepdims=True)
-    H_normalized = H / H_row_norms
-    result['nc1_n'] = torch.mean( torch.norm( H_normalized @ P_H - H_normalized, p=2, dim=1) ** 2 ).item()
-    del H_np, H_pca, pca_for_H
+    for k in range(max(y_dim, 5)):
+        result[f'EVR{k+1}'] = pca_for_H.explained_variance_ratio_[k]
+        P_H = H_U[:k+1, :].T @ H_U[:k+1, :]
+        result[f'nc1_pc{k+1}'] = torch.sum((H @ P_H - H)**2).item() / len(H)
+    
+        H_row_norms = torch.norm(H, dim=1, keepdim=True)
+        H_normalized = H / H_row_norms
+        result[f'nc1n_pc{k+1}'] = torch.mean( torch.norm( H_normalized @ P_H - H_normalized, p=2, dim=1) ** 2 ).item()
+        
+        if k+1 == y_dim: 
+            result['nc1'] = result[f'nc1_pc{k+1}']
+            result['nc1n'] = result[f'nc1n_pc{k+1}']
+    # result['nc1'] = result[f'nc1_pc{y_dim}']
+    
+    # H_pca = pca_for_H.components_[:y_dim, :]  # First two principal components [2,5]
+    # H_pca = torch.tensor(H_pca, device=H.device)
+    # H_U = gram_schmidt(H_pca)
+    # P_H = torch.mm(H_U.T, H_U)   # Projection matrix
+    # result['nc1'] = torch.sum((H @ P_H - H)**2).item() / len(H)
 
     # Projection error with Gram-Schmidt
     U = gram_schmidt(W)
     P_W = torch.mm(U.T, U)
     result['nc2'] = torch.sum((H @ P_W - H) ** 2).item() / len(H)
-    result['nc2_n'] = torch.mean(
+    result['nc2n'] = torch.mean(
         torch.norm(H_normalized @ P_W - H_normalized, p=2, dim=1) ** 2
     ).item()
 

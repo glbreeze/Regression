@@ -193,18 +193,18 @@ def main(args):
             # ================ log to wandb ================
             nc_dt = {
                 'train/train_nc1': nc_train['nc1'],
-                'train/train_nc1n': nc_train['nc1_n'],
+                'train/train_nc1n': nc_train['nc1n'],
                 'train/train_nc2': nc_train['nc2'],
-                'train/train_nc2n': nc_train['nc2_n'],
+                'train/train_nc2n': nc_train['nc2n'],
                 'train/train_loss': train_loss,
                 'train/train_mse': train_mse,
 
                 'val/val_loss': val_loss,
                 'val/val_mse': val_mse,
                 'val/val_nc1': nc_val['nc1'],
-                'val/val_nc1n': nc_val['nc1_n'],
+                'val/val_nc1n': nc_val['nc1n'],
                 'val/val_nc2': nc_val['nc2'],
-                'val/val_nc2n': nc_val['nc2_n'],
+                'val/val_nc2n': nc_val['nc2n'],
 
                 'NC3/nc3': NC3,
                 'NC3/best_c': best_c,
@@ -213,6 +213,24 @@ def main(args):
                 'NC3/ww00_d': abs(WWT[0, 0].item() - W_outer[0, 0]) / (abs(W_outer[0, 0]) + 1e-8),
                 'NC3/ww11_d': abs(WWT[1, 1].item() - W_outer[1, 1]) / (abs(W_outer[1, 1]) + 1e-8) if args.num_y == 2 else 0,
                 # 'NC2/ww01_d': abs(WWT[0, 1].item() - W_outer[0, 1]) / (abs(W_outer[0, 1]) + 1e-8) if args.num_y == 2 else 0,
+                
+                'EVR/EVR1': nc_train['EVR1'],
+                'EVR/EVR2': nc_train['EVR2'],
+                'EVR/EVR3': nc_train['EVR3'],
+                'EVR/EVR4': nc_train['EVR4'],
+                'EVR/EVR5': nc_train['EVR5'],
+                
+                'NC1/nc1_pc1': nc_train['nc1_pc1'],
+                'NC1/nc1_pc2': nc_train['nc1_pc2'],
+                'NC1/nc1_pc3': nc_train['nc1_pc3'],
+                'NC1/nc1_pc4': nc_train['nc1_pc4'],
+                'NC1/nc1_pc5': nc_train['nc1_pc5'],
+                
+                'NC1n/nc1n_pc1': nc_train['nc1n_pc1'],
+                'NC1n/nc1n_pc2': nc_train['nc1n_pc2'],
+                'NC1n/nc1n_pc3': nc_train['nc1n_pc3'],
+                'NC1n/nc1n_pc4': nc_train['nc1n_pc4'],
+                'NC1n/nc1n_pc5': nc_train['nc1n_pc5'],
 
                 'W/ww00': WWT[0, 0].item(),
                 'W/ww01': WWT[0, 1].item() if args.num_y == 2 else 0,
@@ -237,8 +255,8 @@ def main(args):
             elif args.which_y == 1:
                 wandb.log({'train/train_mse1': train_loss, 'val/val_mse1': val_loss}, step=epoch)
 
-            log('Epoch {}/{}, runnning train loss: {:.4f}, ww00: {:.4f}, ww01: {:.4f}, ww11: {:.4f}'.format(
-                epoch, args.max_epoch, train_loss, nc_dt['ww00'], nc_dt['ww01'], nc_dt['ww11']
+            log('Epoch {}/{}, train loss: {:.4f}, val loss: {:.4f}'.format(
+                epoch, args.max_epoch, train_loss, val_loss
             ))
 
         if (epoch == 0 or epoch % args.save_freq == 0) and args.save_freq > 0:
